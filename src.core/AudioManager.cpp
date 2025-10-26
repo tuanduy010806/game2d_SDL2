@@ -1,74 +1,4 @@
-//#include "core/AudioManager.h"
-//#include <iostream>
-//
-//AudioManager* AudioManager::s_instance = nullptr;
-//
-//AudioManager* AudioManager::Instance() {
-//    if (!s_instance) {
-//        s_instance = new AudioManager();
-//    }
-//    return s_instance;
-//}
-//
-//AudioManager::AudioManager() : m_muted(false) {}
-//
-//AudioManager::~AudioManager() {
-//    Clean();
-//}
-//
-//bool AudioManager::LoadMusic(const std::string& id, const std::string& path) {
-//    Mix_Music* music = Mix_LoadMUS(path.c_str());
-//    if (!music) {
-//        std::cerr << "Failed to load music: " << path << " - " << Mix_GetError() << std::endl;
-//        return false;
-//    }
-//    m_musicMap[id] = music;
-//    return true;
-//}
-//
-//bool AudioManager::LoadSound(const std::string& id, const std::string& path) {
-//    Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
-//    if (!chunk) {
-//        std::cerr << "Failed to load sound: " << path << " - " << Mix_GetError() << std::endl;
-//        return false;
-//    }
-//    m_soundMap[id] = chunk;
-//    return true;
-//}
-//
-//void AudioManager::PlayMusic(const std::string& id, int loops) {
-//    if (m_musicMap.count(id)) {
-//        Mix_PlayMusic(m_musicMap[id], loops);
-//    }
-//}
-//
-//void AudioManager::PlaySound(const std::string& id, int loops) {
-//    if (m_soundMap.count(id)) {
-//        Mix_PlayChannel(-1, m_soundMap[id], loops);
-//    }
-//}
-//
-//void AudioManager::ToggleMute() {
-//    m_muted = !m_muted;
-//    if (m_muted) {
-//        Mix_VolumeMusic(0);
-//        Mix_Volume(-1, 0); // Mute all channels
-//    } else {
-//        Mix_VolumeMusic(MIX_MAX_VOLUME);
-//        Mix_Volume(-1, MIX_MAX_VOLUME); // Unmute all channels
-//    }
-//}
-//
-//void AudioManager::Clean() {
-//    for (auto const& [key, val] : m_musicMap) {
-//        Mix_FreeMusic(val);
-//    }
-//    for (auto const& [key, val] : m_soundMap) {
-//        Mix_FreeChunk(val);
-//    }
-//    m_musicMap.clear();
-//    m_soundMap.clear();
-//}
+
 #include "core/AudioManager.h"
 #include <iostream>
 
@@ -132,7 +62,7 @@ void AudioManager::PlaySound(const std::string& id, int loops) {
     }
 }
 void AudioManager::StopMusic() {
-    Mix_HaltMusic(); // Dừng phát nhạc ngay lập tức
+    Mix_HaltMusic();
 }
 // tắt bật toàn bộ âm thanh và hiệu ứng âm thanh trong game
 void AudioManager::ToggleMute() {

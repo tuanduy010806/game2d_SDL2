@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 
-// Forward declaration
 class GameState;
 
 class Game {
@@ -13,7 +12,7 @@ public:
     static Game* Instance();
 
     bool Init(const std::string& title, int width, int height);
-    void Run(); // Main loop is now here
+    void Run(); /
     void HandleEvents();
     void Update();
     void Render();
@@ -26,7 +25,6 @@ public:
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
 
-    // State management
     void PushState(GameState* state);
     void PopState();
     void ChangeState(GameState* state);
@@ -36,7 +34,6 @@ private:
     Game();
     ~Game();
 
-    // Make constructor and destructor private for Singleton
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
 

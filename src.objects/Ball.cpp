@@ -1,5 +1,6 @@
 #include "objects/Ball.h"
 #include "core/TextureManager.h"
+#include "core/AudioManager.h"
 
 // khởi tạo bóng ban đầu với vị trí, size và vận tốc ban đầu
 Ball::Ball( float x,float y, int size, const std::string& textureID)
@@ -17,15 +18,18 @@ void Ball::Update(float deltaTime, int screenW, int screenH) {
     if (m_x <= 0) {
         m_x = 0;// kẹp bóng lại tránh tràn hình
         BounceX();
+        AudioManager::Instance()->PlaySound("hit", 0);
     }
     // Wall collision heck va chạm với tường phải
     if (m_x + m_size >= screenW) {
         m_x = (float)screenW - m_size;// kẹp bóng lại tránh tràn hình
         BounceX();// logic nảy lại
+        AudioManager::Instance()->PlaySound("hit", 0);
     }
     if (m_y <= 0) {
         m_y = 0;
         BounceY();
+        AudioManager::Instance()->PlaySound("hit", 0);
     }
 }
 
@@ -36,6 +40,7 @@ void Ball::Draw(SDL_Renderer* renderer) {
 void Ball::Reset( float x,float  y) {
     m_x = x;
     m_y = y;
+    // Reset vận tốc về mặc định (dùng khi bắt đầu lại)
     m_velX = 350.0f;
     m_velY = -350.0f;
 }

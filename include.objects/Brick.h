@@ -12,10 +12,13 @@ public:
     bool IsAlive() const { return m_hp > 0; }
     void Hit();
     SDL_Rect GetRect() const { return m_rect; }
+    int GetHp() const { return m_hp; }
+    int GetOriginalHp() const { return m_originalHp; }
 
 private:
     SDL_Rect m_rect;
     int m_hp;
+    int m_originalHp;
     std::string m_textureID;
 };
 

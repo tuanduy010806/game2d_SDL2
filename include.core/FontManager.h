@@ -11,6 +11,7 @@ public:
 
     bool Load(const std::string& id, const std::string& path, int size);
     void DrawText(const std::string& id, const std::string& text, SDL_Color color, int x, int y, SDL_Renderer* renderer);
+    void ClearFromTextureMap(const std::string& id);
     void Clean();
 
 private:

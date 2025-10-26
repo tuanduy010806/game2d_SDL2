@@ -46,6 +46,14 @@ void FontManager::DrawText(const std::string& id, const std::string& text, SDL_C
     SDL_DestroyTexture(texture);
 }
 
+void FontManager::ClearFromTextureMap(const std::string& id) {
+    if (m_fontMap.count(id)) {
+        TTF_CloseFont(m_fontMap[id]);
+        m_fontMap.erase(id);
+    }
+}
+
+
 void FontManager::Clean() {
     for (auto const& [key, val] : m_fontMap) {
         TTF_CloseFont(val);

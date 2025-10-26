@@ -8,11 +8,13 @@
 class AudioManager {
 public:
     static AudioManager* Instance();
+    void StopMusic();
 
     bool LoadMusic(const std::string& id, const std::string& path);
     bool LoadSound(const std::string& id, const std::string& path);
     void PlayMusic(const std::string& id, int loops = -1);
     void PlaySound(const std::string& id, int loops = 0);
+
 
     void ToggleMute();
     bool IsMuted() const { return m_muted; }
