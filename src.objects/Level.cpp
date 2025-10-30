@@ -41,19 +41,15 @@ static int map3[10][15] = {
     {3,3,3,3,3,0,0,0,0,0,0,3,3,3,3}
 };
 
-// kích thước của gạch
+// kích thước gạch
 Level::Level() : m_tileW(53), m_tileH(30) {}
 
 void Level::LoadMap(int mapIndex, SDL_Renderer* renderer) {
     m_bricks.clear();
 
-    // Tất cả map hiện tại
     static int (*maps[])[15] = { map1, map2, map3};
-    //const int numMaps = sizeof(maps) / sizeof(maps[0]);
-
-    // Chọn map theo mapIndex, nếu vượt quá số map thì quay vòng
+    // Chọn map theo mapIndex
     int (*selectedMap)[15] = maps[mapIndex % 3];
-
     const int rows = 10;
     const int cols = 15;
 
@@ -61,10 +57,8 @@ void Level::LoadMap(int mapIndex, SDL_Renderer* renderer) {
         for (int col = 0; col < cols; ++col) {
             int val = selectedMap[row][col];
             if (val == 0) continue; // 0 = khoảng trống
-
             std::string texture;
             int hp = 0;
-
             switch (val) {
                 case 1:
                     texture = "brickeasy";
@@ -80,12 +74,10 @@ void Level::LoadMap(int mapIndex, SDL_Renderer* renderer) {
                     hp = -1;
                     break;
             }
-
-            // Vẽ brick, chừa 50px trên cùng cho HUD/paddle
             m_bricks.emplace_back(
                 col * m_tileW,          // x
                 row * m_tileH + 50,     // y
-                m_tileW - 2,            // width nhỏ hơn 2px để có khe giữa
+                m_tileW - 2,            // tạo khe gạch
                 m_tileH - 2,            // height
                 hp,
                 texture
