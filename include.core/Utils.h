@@ -1,6 +1,5 @@
 #ifndef UTILS_H
 #define UTILS_H
-
 #include <cstdlib>
 
 namespace Utils {
@@ -9,7 +8,6 @@ namespace Utils {
         if (min > max) return min;
         return min + rand() % ((max - min) + 1);
     }
-
     //  ghan gtri trong khoảng [min,max]
     inline float Clamp(float value, float min, float max) {
         if (value < min) return min;

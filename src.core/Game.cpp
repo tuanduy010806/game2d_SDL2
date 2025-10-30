@@ -22,7 +22,7 @@ Game* Game::Instance() {
 Game::Game()
     : m_window(nullptr), m_renderer(nullptr), m_running(false), m_width(800), m_height(600) {}
 
-Game::~Game() {
+Game::~Game() { }
 
 
 bool Game::Init(const std::string& title, int width, int height) {

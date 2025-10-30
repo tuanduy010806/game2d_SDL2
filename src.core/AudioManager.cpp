@@ -54,7 +54,7 @@ void AudioManager::PlayMusic(const std::string& id, int loops) {
 // phát âm thanh hiệu ứng
 void AudioManager::PlaySound(const std::string& id, int loops) {
     if (m_soundMap.count(id)) {
-        if (Mix_PlayChannel(-1, m_soundMap[id], loops) == -1) { // -1 là lặp vô hạn
+        if (Mix_PlayChannel(-1, m_soundMap[id], loops) == -1) {
             std::cerr << "Failed to play sound: " << Mix_GetError() << std::endl;
         }
     } else {
