@@ -1,10 +1,10 @@
 #include "core/Game.h"
 #include "states/MenuState.h"
 #include <iostream>
-#include <windows.h>   // 🔹 thêm dòng này
+#include <windows.h>
 
 int main(int argc, char* argv[]) {
-    // 🔹 Ẩn cửa sổ console (nếu có)
+    // Ẩn cửa sổ console
     HWND hwnd = GetConsoleWindow();
     ShowWindow(hwnd, SW_HIDE);
 
