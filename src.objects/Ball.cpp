@@ -5,9 +5,6 @@
 // khởi tạo bóng
 Ball::Ball( float x,float y, int size, const std::string& textureID)
     : m_x(x), m_y(y), m_size(size), m_textureID(textureID) {
-    //  vận tốc ban đầu
-    m_velX = 250.0f;
-    m_velY = -250.0f;
 }
 //update bóng theo từng khung hình chạy theo thời gian thực
 void Ball::Update(float deltaTime, int screenW, int screenH) {
@@ -37,13 +34,6 @@ void Ball::Draw(SDL_Renderer* renderer) {
     TextureManager::Instance()->Draw(m_textureID, (int)m_x, (int)m_y, m_size, m_size, renderer);
 }
 
-void Ball::Reset( float x,float  y) {
-    m_x = x;
-    m_y = y;
-    // Reset vận tốc về mặc định
-    m_velX = 350.0f;
-    m_velY = -350.0f;
-}
 // nảy hường ngược lại theo chiều ngang
 void Ball::BounceX() {
     m_velX = -m_velX;
