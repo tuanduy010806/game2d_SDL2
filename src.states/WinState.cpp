@@ -55,19 +55,49 @@ void WinState::Render() {
 
     TextureManager::Instance()->Draw("menu_bg", m_panelRect.x, m_panelRect.y, m_panelRect.w, m_panelRect.h, renderer);
     TextureManager::Instance()->Draw("restartbutton", m_restartButton.x, m_restartButton.y, m_restartButton.w, m_restartButton.h, renderer);
-    SDL_Color orange = {255, 165, 0, 255};
-    SDL_Color white = {255, 255, 255, 255};
+
+
      // Dòng YOU WIN!!!
-    FontManager::Instance()->DrawText("large_main_font", "YOU WIN!!!", orange, m_panelRect.x + 85, m_panelRect.y + 30, renderer);
+//    FontManager::Instance()->DrawText("large_main_font", "YOU WIN!!!", orange, m_panelRect.x + 85, m_panelRect.y + 30, renderer);
+    SDL_Color mainPurple = {255, 0, 255, 255};  // Tím sáng
+    SDL_Color glowPurple = {150, 0, 200, 90};   // Ánh tím mờ
+
+    FontManager::Instance()->DrawTextWithGlow(
+        "large_main_font",
+        "YOU WIN!!!",
+        mainPurple,
+        glowPurple,
+        m_panelRect.x + 85,
+        m_panelRect.y + 30,
+        renderer,
+        8 // cường độ sáng (radius)
+    );
+
+
     // điểm 20s - 10 điểm
-    float score = 100.0f - floor(m_record / 20.0f) * 10.0f;
+    float score = 100.0f - floor(m_record / 20.0f) * 5.0f;
     if (score < 0.0f) {
     score = 0.0f;
     }
     std::string recordText = "YOUR RECORD: " + std::to_string((int)score) + "P";
     // Vẽ text điểm
-    FontManager::Instance()->DrawText("main_font", recordText, white,
-                                  m_panelRect.x + 125, m_panelRect.y + 110, renderer);
+//    FontManager::Instance()->DrawText("main_font", recordText, white,
+//                                  m_panelRect.x + 125, m_panelRect.y + 110, renderer);
+    SDL_Color white = {255, 255, 255, 255};      // màu chính sáng
+    SDL_Color glowWhite = {255, 255, 180, 90};   // ánh sáng mờ (vàng trắng nhẹ)
+
+    FontManager::Instance()->DrawTextWithGlow(
+        "main_font",
+        recordText,
+        white,          // màu chữ chính
+        glowWhite,      // màu phát sáng
+        m_panelRect.x + 125,
+        m_panelRect.y + 110,
+        renderer,
+        1               // cường độ sáng (bán kính)
+    );
+
+
 }
 
 void WinState::Exit() {
