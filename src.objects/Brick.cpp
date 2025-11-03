@@ -1,12 +1,12 @@
 #include "objects/Brick.h"
 #include "core/TextureManager.h"
 
-//khởi tạo gạch
+//khởi tạo bricks
 Brick::Brick(int x, int y, int w, int h, int hp, const std::string& textureID)
     : m_hp(hp), m_originalHp(hp), m_textureID(textureID) {
     m_rect = {x, y, w, h};
 }
-// render gạch
+// render brick
 void Brick::Draw(SDL_Renderer* renderer) {
     if (m_hp != 0) {
         std::string texID = m_textureID;
