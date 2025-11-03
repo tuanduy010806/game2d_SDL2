@@ -20,7 +20,7 @@ bool TextureManager::Load(const std::string& id, const std::string& file, SDL_Re
     // sao chép ảnh từ tempSurface sang texture rồi giải phóng tempSuface
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     SDL_FreeSurface(tempSurface);
-    //lưu id của ảnh vào textureMap: danh mục tài nguyên
+    //lưu id của ảnh vào textureMap: lập danh mục tài nguyên
     if (texture) {
         m_textureMap[id] = texture;
         return true;
