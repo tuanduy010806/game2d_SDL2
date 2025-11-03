@@ -78,8 +78,22 @@ void PauseState::Render() {
     TextureManager::Instance()->Draw("quitbutton", m_quitButton.x, m_quitButton.y, m_quitButton.w, m_quitButton.h, renderer);
 
     // render chữ
-    SDL_Color white = {255, 255, 255, 255};
-    FontManager::Instance()->DrawText("main_font", "PAUSED GAME ARKANOID", white, m_panelRect.x + 102, m_panelRect.y + 10, renderer);
+    //SDL_Color white = {255, 255, 255, 255};
+    //FontManager::Instance()->DrawText("main_font", "PAUSED GAME ARKANOID", white, m_panelRect.x + 102, m_panelRect.y + 10, renderer);
+
+    SDL_Color white = {255, 255, 255, 255};      // màu chính sáng
+    SDL_Color glowWhite = {255, 255, 180, 90};   // ánh sáng mờ (vàng trắng nhẹ)
+
+    FontManager::Instance()->DrawTextWithGlow(
+        "main_font",
+        "PAUSED GAME ARKANOID",
+        white,          // màu chữ chính
+        glowWhite,      // màu phát sáng
+        m_panelRect.x + 102,
+        m_panelRect.y + 10,
+        renderer,
+        2               // cường độ sáng (bán kính)
+    );
 }
 
 void PauseState::Exit() {
