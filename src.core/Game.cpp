@@ -104,7 +104,7 @@ void Game::Render() {
 }
 
 void Game::Clean() {
-    // giai phong tai nguyen state
+    // giai phong tai nguyen
     while (!m_states.empty()) {
         m_states.back()->Exit();
         delete m_states.back();
