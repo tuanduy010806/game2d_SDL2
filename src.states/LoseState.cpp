@@ -54,15 +54,45 @@ void LoseState::Render() {
     TextureManager::Instance()->Draw("menu_bg", m_panelRect.x, m_panelRect.y, m_panelRect.w, m_panelRect.h, renderer);
     TextureManager::Instance()->Draw("restartbutton", m_restartButton.x, m_restartButton.y, m_restartButton.w, m_restartButton.h, renderer);
 
-    SDL_Color red = {255, 50, 50, 255};
     SDL_Color white = {255, 255, 255, 255};
 
-    // render chữ you lose7
-    FontManager::Instance()->DrawText("large_main_font", "YOU LOSE!!!", red, m_panelRect.x + 75, m_panelRect.y + 30, renderer);
+    // render chữ you lose
+    //FontManager::Instance()->DrawText("large_main_font", "YOU LOSE!!!", red, m_panelRect.x + 75, m_panelRect.y + 30, renderer);
+    SDL_Color mainRed = {255, 40, 40, 255};   // đỏ sáng rực
+    SDL_Color glowRed = {255, 0, 0, 100};     // đỏ mờ xung quanh (ánh sáng)
+    FontManager::Instance()->DrawTextWithGlow(
+        "large_main_font",
+        "YOU LOSE!!!",
+        mainRed,
+        glowRed,
+        m_panelRect.x + 80,
+        m_panelRect.y + 30,
+        renderer,
+        2
+    );
+
+
+
+
 
     // render chữ time
     std::string recordText = "Time: " + std::to_string((int)m_record) + "s";
-    FontManager::Instance()->DrawText("main_font", recordText, white, m_panelRect.x + 165, m_panelRect.y + 110, renderer);
+    //FontManager::Instance()->DrawText("main_font", recordText, white, m_panelRect.x + 165, m_panelRect.y + 110, renderer);
+
+
+    SDL_Color glowWhite = {255, 255, 180, 90};   // ánh sáng mờ (vàng trắng nhẹ)
+
+    FontManager::Instance()->DrawTextWithGlow(
+        "main_font",
+        recordText,
+        white,          // màu chữ chính
+        glowWhite,      // màu phát sáng
+        m_panelRect.x + 165,
+        m_panelRect.y + 110,
+        renderer,
+        1               // cường độ sáng (bán kính)
+    );
+
 }
 
 void LoseState::Exit() {
