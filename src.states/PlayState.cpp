@@ -19,7 +19,7 @@
 #include <SDL_rect.h>
 #include "core/TextureManager.h"
 
-static constexpr float DEFAULT_BALL_SPEED = 500.0f;
+static constexpr float DEFAULT_BALL_SPEED = 350.0f;
 static constexpr float MAX_BOUNCE_ANGLE = 3.14159f / 3.0f; // 60 độ
 
 PlayState::PlayState()
@@ -49,7 +49,7 @@ void PlayState::Enter() {
     TextureManager::Instance()->Load("ball", "assets/images/ball.png", renderer);
     TextureManager::Instance()->Load("brickeasy", "assets/images/brickeasy.png", renderer);
     TextureManager::Instance()->Load("brickmedium", "assets/images/brickmedium.png", renderer);
-    TextureManager::Instance()->Load("brickmedium_break", "assets/images/brickmedium_break.png", renderer);
+    TextureManager::Instance()->Load("brickmedium_break", "assets/images/brickmedium_break.png", renderer); // Giữ lại
     TextureManager::Instance()->Load("brickhard", "assets/images/brickhard.png", renderer);
     TextureManager::Instance()->Load("pausebutton", "assets/images/pausebutton.png", renderer);
     // load âm thanh
@@ -68,7 +68,7 @@ void PlayState::Enter() {
     m_ball = new Ball(400, 560, 16, "ball");
     m_level = new Level();
 
-    m_level->LoadMap(Utils::RandomInt(0, 3), renderer);
+    m_level->LoadMap(Utils::RandomInt(0, 5), renderer);
     ResetBallOnPaddle();
 
     m_infoPanel = {10, 10, 150, 40};
@@ -78,7 +78,7 @@ void PlayState::Enter() {
     m_gameStarted = false;
     m_isBoosted = false;
 }
-// ball trên paddle
+
 void PlayState::ResetBallOnPaddle() {
     if (!m_paddle || !m_ball) return;
     float paddleX = (float)m_paddle->GetRect().x;
@@ -90,29 +90,36 @@ void PlayState::ResetBallOnPaddle() {
     m_ball->SetX(ballX);
     m_ball->SetY(ballY);
 }
-// debuff bóng x1.5 tốc độ trong 2s
+
 void PlayState::ActivateSpeedBoost() {
     if (!m_ball) return;
-    if (m_isBoosted) {
-        m_boostTimer.Start();
-    } else {
+    if (!m_isBoosted) { // Chỉ SET tốc độ nếu chưa boost
         m_isBoosted = true;
-        m_boostTimer.Start();
-        m_ball->SetVelocity(m_ball->GetVelX() * 1.5f, m_ball->GetVelY() * 1.5f);
+
+        float velX = m_ball->GetVelX();
+        float velY = m_ball->GetVelY();
+        float magnitude = std::sqrt(velX * velX + velY * velY);
+
+        if (magnitude == 0) magnitude = 1;
+
+        float normX = velX / magnitude;
+        float normY = velY / magnitude;
+
+        // SET tốc độ và giữ nguyên hướng
+        m_ball->SetVelocity(normX * (DEFAULT_BALL_SPEED * 1.5f),
+                            normY * (DEFAULT_BALL_SPEED * 1.5f));
     }
+    m_boostTimer.Start(); //  reset timer hết buff về 0
 }
 
 void PlayState::HandleEvents(SDL_Event& e) {
     if (m_paused) return;
     if (!m_paddle) return;
-
     if (e.type == SDL_MOUSEMOTION) {
         m_paddle->Update(e.motion.x, Game::Instance()->GetWidth());
     }
-
     if (e.type == SDL_MOUSEBUTTONDOWN) {
         SDL_Point mousePoint = {e.button.x, e.button.y};
-
         if (!m_gameStarted) {
             m_gameStarted = true;
             m_timer.Start();
@@ -129,7 +136,8 @@ void PlayState::HandleEvents(SDL_Event& e) {
         }
     }
 }
-// update các va chạm
+
+
 void PlayState::Update() {
     if (m_paused) return;
 
@@ -144,30 +152,37 @@ void PlayState::Update() {
     if (m_isBoosted && m_boostTimer.IsStarted() && m_boostTimer.GetSeconds() >= 2.0f) {
         m_isBoosted = false;
         m_boostTimer.Stop();
-        if (m_ball) {
-            m_ball->SetVelocity(m_ball->GetVelX() * 0.5f, m_ball->GetVelY() * 0.5f);
+
+        if (m_ball) { // Check bóng
+            float velX = m_ball->GetVelX();
+            float velY = m_ball->GetVelY();
+            float magnitude = std::sqrt(velX * velX + velY * velY);
+
+            if (magnitude == 0) magnitude = 1;
+
+            float normX = velX / magnitude;
+            float normY = velY / magnitude;
+
+            // SET tốc độ mặc định và giữ nguyên hướng
+            m_ball->SetVelocity(normX * DEFAULT_BALL_SPEED,
+                                normY * DEFAULT_BALL_SPEED);
         }
     }
-    // sủa bug bóng đi xuyên gạch ở tốc độ cao
+
     const float dt = 1.0f / 60.0f;
-    int subSteps = 8;
+    int subSteps = 4;
     if (m_isBoosted) {
         subSteps = 8;
     }
     const float sub_dt = dt / (float)subSteps;
+
     for (int i = 0; i < subSteps; ++i) {
         m_ball->Update(sub_dt, Game::Instance()->GetWidth(), Game::Instance()->GetHeight());
         checkCollisions();
-
-        if (m_level->AllCleared()) {
-            break;
-        }
-        if (m_ball->GetY() > Game::Instance()->GetHeight()) {
+        if (m_level->AllCleared() || m_ball->GetY() > Game::Instance()->GetHeight()) {
             break;
         }
     }
-
-    // check Win / Lose
     if (m_level->AllCleared()) {
         AudioManager::Instance()->StopMusic();
         AudioManager::Instance()->PlaySound("win", 0);
@@ -191,9 +206,8 @@ void PlayState::checkCollisions() {
     if (SDL_HasIntersection(&ballRect, &paddleRect)) {
         AudioManager::Instance()->PlaySound("hit", 0);
 
-        if (m_ball->GetVelY() > 0) {
+        if (m_ball->GetVelY() > 0) { // Chỉ va chạm nếu bóng đi xuống
 
-            // Tính AABB overlap
             float ballCenterX = m_ball->GetX() + m_ball->GetSize() / 2.0f;
             float ballCenterY = m_ball->GetY() + m_ball->GetSize() / 2.0f;
             float paddleCenterX = (float)paddleRect.x + paddleRect.w / 2.0f;
@@ -204,39 +218,33 @@ void PlayState::checkCollisions() {
             float diffY = ballCenterY - paddleCenterY;
             float overlapX = combinedHalfW - std::abs(diffX);
             float overlapY = combinedHalfH - std::abs(diffY);
-            // Xác định hướng va chạm
+
             if (overlapY < overlapX) // va chạm dọc
-                {
+            {
                 m_ball->SetY((float)paddleRect.y - m_ball->GetSize());
                 // Tính góc nảy
                 float hitPoint = m_ball->GetX() + m_ball->GetSize() / 2.0f;
                 float relativeHit = hitPoint - paddleCenterX;
                 float normalizedHit = Utils::Clamp(relativeHit / (paddleRect.w / 2.0f), -1.0f, 1.0f);
                 float bounceAngle = normalizedHit * MAX_BOUNCE_ANGLE;
-                float currentSpeed = m_isBoosted ? (DEFAULT_BALL_SPEED * 2.0f) : DEFAULT_BALL_SPEED;
+
+                float currentSpeed = m_isBoosted ? (DEFAULT_BALL_SPEED * 1.5f) : DEFAULT_BALL_SPEED;
 
                 m_ball->SetVelocity(currentSpeed * sin(bounceAngle), -currentSpeed * cos(bounceAngle));
 
             } else //va chạm ngang
-             {
+            {
                 m_ball->BounceX();
-                if (diffX > 0) // Bóng ở bên phải paddle
-                {
-                    m_ball->SetX(m_ball->GetX() + overlapX);
-                } else  // Bóng ở bên trái paddle
-                {
-                    m_ball->SetX(m_ball->GetX() - overlapX);
-                }
-                // va chạm cạnh
-                if (m_ball->GetVelY() > 0) {
-                     m_ball->BounceY();
-                }
+                if (diffX > 0) { m_ball->SetX(m_ball->GetX() + overlapX); }
+                else { m_ball->SetX(m_ball->GetX() - overlapX); }
+
+                if (m_ball->GetVelY() > 0) { m_ball->BounceY(); }
             }
         }
     }
-    // ball va chạm với gạch
+
     for (auto& brick : m_level->GetBricks()) {
-        if (brick.GetHp() == 0) continue; // gạch ko thể phá
+        if (brick.GetHp() == 0) continue;
         SDL_Rect brickRect = brick.GetRect();
         if (SDL_HasIntersection(&ballRect, &brickRect)) {
             AudioManager::Instance()->PlaySound("hit", 0);
@@ -252,96 +260,96 @@ void PlayState::checkCollisions() {
                     ActivateSpeedBoost();
                 }
             }
-            // sửa bug lún ball vào trong gạch
-            //  Tính toán tâm và độ lún
             float ballCenterX = m_ball->GetX() + m_ball->GetSize() / 2.0f;
             float ballCenterY = m_ball->GetY() + m_ball->GetSize() / 2.0f;
             float brickCenterX = (float)brickRect.x + brickRect.w / 2.0f;
             float brickCenterY = (float)brickRect.y + brickRect.h / 2.0f;
             float combinedHalfW = m_ball->GetSize() / 2.0f + brickRect.w / 2.0f;
             float combinedHalfH = m_ball->GetSize() / 2.0f + brickRect.h / 2.0f;
-
-            // K/c giữa các tâm
             float diffX = ballCenterX - brickCenterX;
             float diffY = ballCenterY - brickCenterY;
-
-            // Tính độ lún
             float overlapX = combinedHalfW - std::abs(diffX);
             float overlapY = combinedHalfH - std::abs(diffY);
-
-            //  Xác định hướng va chạm
             if (overlapX < overlapY) {
-                // Va chạm ngang
                 m_ball->BounceX();
-                // Đẩy bóng ra theo trục X
-                if (diffX > 0)// Bóng ở bên phải gạch
-                {
-                    m_ball->SetX(m_ball->GetX() + overlapX);
-                } else // Bóng ở bên trái gạch
-                {
-                    m_ball->SetX(m_ball->GetX() - overlapX);
-                }
+                if (diffX > 0) { m_ball->SetX(m_ball->GetX() + overlapX); }
+                else { m_ball->SetX(m_ball->GetX() - overlapX); }
             } else {
-                // Va chạm dọc
                 m_ball->BounceY();
-                // Đẩy  bóng ra theo trục Y
-                if (diffY > 0) // Bóng ở bên dưới gạch
-                {
-                    m_ball->SetY(m_ball->GetY() + overlapY);
-                } else // Bóng ở bên trên gạch
-                {
-                    m_ball->SetY(m_ball->GetY() - overlapY);
-                }
+                if (diffY > 0) { m_ball->SetY(m_ball->GetY() + overlapY); }
+                else { m_ball->SetY(m_ball->GetY() - overlapY); }
             }
             break;
         }
     }
 }
-// render game khi chơi
+
 void PlayState::Render() {
     auto renderer = Game::Instance()->GetRenderer();
-    // check render thành công?
     if (!renderer) return;
-    // render tài nguyên
     if (m_paddle) m_paddle->Draw(renderer);
     if (m_ball) m_ball->Draw(renderer);
     if (m_level) m_level->Draw(renderer);
-
     TextureManager::Instance()->Draw("pausebutton", m_pauseButton.x, m_pauseButton.y, m_pauseButton.w, m_pauseButton.h, renderer);
 
-    SDL_Color textColor = {255, 255, 255, 255};
+    SDL_Color white_textColor = {255, 255, 255, 255};      // màu chính sáng
+    SDL_Color glowWhite_textColor = {255, 255, 180, 90};   // ánh sáng mờ (vàng trắng nhẹ)
 
-    if (!m_gameStarted) { // chưa chơi
+    if (!m_gameStarted) {
         int w = Game::Instance()->GetWidth();
         int h = Game::Instance()->GetHeight();
-        FontManager::Instance()->DrawText("default", "Click to play", textColor, w / 2 - 50 , h / 2 + 200, renderer);
+        //FontManager::Instance()->DrawText("default", "Click to play", white_textColor, w / 2 - 50 , h / 2 + 200, renderer);
+
+
+        FontManager::Instance()->DrawTextWithGlow(
+        "default",
+        "Click to play",
+        white_textColor,          // màu chữ chính
+        glowWhite_textColor,      // màu phát sáng
+        w / 2 - 50,
+        h / 2 + 200,
+        renderer,
+        2               // cường độ sáng (bán kính)
+    );
+
     }
-    else if (m_timer.IsStarted()){ // đã chơi nên render đồng hồ
+    else if (m_timer.IsStarted()){
         std::string timeText = "Time: " + std::to_string((int)m_timer.GetSeconds()) + "s";
-        FontManager::Instance()->DrawText("default", timeText, textColor, m_infoPanel.x + 5, m_infoPanel.y + 5, renderer);
+        //FontManager::Instance()->DrawText("default", timeText, textColor, m_infoPanel.x + 5, m_infoPanel.y + 5, renderer);
+
+        FontManager::Instance()->DrawTextWithGlow(
+        "default",
+        timeText,
+        white_textColor,          // màu chữ chính
+        glowWhite_textColor,      // màu phát sáng
+        m_infoPanel.x + 5,
+        m_infoPanel.y + 5,
+        renderer,
+        2               // cường độ sáng (bán kính)
+    );
+
+
     }
 }
-// giải phóng tài nguyên
+
 void PlayState::Exit() {
     std::cout << "Exiting PlayState..." << std::endl;
     m_timer.Stop();
     if (m_boostTimer.IsStarted()) m_boostTimer.Stop();
     AudioManager::Instance()->StopMusic();
-
     delete m_paddle;    m_paddle = nullptr;
     delete m_ball;      m_ball = nullptr;
     delete m_level;     m_level = nullptr;
-
     TextureManager::Instance()->ClearFromTextureMap("paddle");
     TextureManager::Instance()->ClearFromTextureMap("ball");
     TextureManager::Instance()->ClearFromTextureMap("brickeasy");
     TextureManager::Instance()->ClearFromTextureMap("brickmedium");
+    TextureManager::Instance()->ClearFromTextureMap("brickmedium_break");
     TextureManager::Instance()->ClearFromTextureMap("brickhard");
     TextureManager::Instance()->ClearFromTextureMap("pausebutton");
-
     FontManager::Instance()->ClearFromTextureMap("default");
 }
-// réume
+
 void PlayState::ResumePlay() {
     m_paused = false;
     if (m_timer.IsStarted()) m_timer.Resume();
@@ -349,4 +357,3 @@ void PlayState::ResumePlay() {
         m_boostTimer.Resume();
     }
 }
-
