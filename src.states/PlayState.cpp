@@ -168,7 +168,7 @@ void PlayState::Update() {
                                 normY * DEFAULT_BALL_SPEED);
         }
     }
-
+    //sửa lỗi bóng đi xuyên bricks
     const float dt = 1.0f / 60.0f;
     int subSteps = 4;
     if (m_isBoosted) {
