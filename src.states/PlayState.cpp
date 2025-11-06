@@ -208,25 +208,25 @@ void PlayState::checkCollisions() {
 
         if (m_ball->GetVelY() > 0) { // Chỉ va chạm nếu bóng đi xuống
 
-            float ballCenterX = m_ball->GetX() + m_ball->GetSize() / 2.0f;
-            float ballCenterY = m_ball->GetY() + m_ball->GetSize() / 2.0f;
-            float paddleCenterX = (float)paddleRect.x + paddleRect.w / 2.0f;
-            float paddleCenterY = (float)paddleRect.y + paddleRect.h / 2.0f;
-            float combinedHalfW = m_ball->GetSize() / 2.0f + paddleRect.w / 2.0f;
-            float combinedHalfH = m_ball->GetSize() / 2.0f + paddleRect.h / 2.0f;
-            float diffX = ballCenterX - paddleCenterX;
-            float diffY = ballCenterY - paddleCenterY;
-            float overlapX = combinedHalfW - std::abs(diffX);
-            float overlapY = combinedHalfH - std::abs(diffY);
+            float ballCenterX = m_ball->GetX() + m_ball->GetSize() / 2.0f; // toạ đọ trung tâm bóng
+            float ballCenterY = m_ball->GetY() + m_ball->GetSize() / 2.0f;  //toạ đọ trung tâm bóng
+            float paddleCenterX = (float)paddleRect.x + paddleRect.w / 2.0f;    // toạ độ trung tâm paddle
+            float paddleCenterY = (float)paddleRect.y + paddleRect.h / 2.0f;    //toạ đọ trung tâm paddle
+            float combinedHalfW = m_ball->GetSize() / 2.0f + paddleRect.w / 2.0f;   //tổng bán kính ball và paddle theo chiều ngang
+            float combinedHalfH = m_ball->GetSize() / 2.0f + paddleRect.h / 2.0f;   // tổng bán kính ball và paddle theo chiều dọc
+            float diffX = ballCenterX - paddleCenterX;      // khoảng cách trung tâm bóng và paddle theo trục x
+            float diffY = ballCenterY - paddleCenterY;      //khoảng cách trung tâm bóng và paddle theo trục y
+            float overlapX = combinedHalfW - std::abs(diffX); // độ lún ball và paddle theo trục x
+            float overlapY = combinedHalfH - std::abs(diffY);   //độ lún ball và paddle theo truc y
 
             if (overlapY < overlapX) // va chạm dọc
             {
                 m_ball->SetY((float)paddleRect.y - m_ball->GetSize());
                 // Tính góc nảy
-                float hitPoint = m_ball->GetX() + m_ball->GetSize() / 2.0f;
-                float relativeHit = hitPoint - paddleCenterX;
-                float normalizedHit = Utils::Clamp(relativeHit / (paddleRect.w / 2.0f), -1.0f, 1.0f);
-                float bounceAngle = normalizedHit * MAX_BOUNCE_ANGLE;
+                float hitPoint = m_ball->GetX() + m_ball->GetSize() / 2.0f; // toạ độ trục x tâm bóng
+                float relativeHit = hitPoint - paddleCenterX;   // k/c tâm bóng và tâm(trục đứng ) paddle
+                float normalizedHit = Utils::Clamp(relativeHit / (paddleRect.w / 2.0f), -1.0f, 1.0f);   // tính tỉ lệ lẹch
+                float bounceAngle = normalizedHit * MAX_BOUNCE_ANGLE;   // tính góc lệch
 
                 float currentSpeed = m_isBoosted ? (DEFAULT_BALL_SPEED * 1.5f) : DEFAULT_BALL_SPEED;
 
